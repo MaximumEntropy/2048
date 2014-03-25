@@ -404,7 +404,7 @@ class Box(pygame.sprite.Sprite):
             Box.image =  pygame.image.load('data/NITT.jpg')
             Box.image = pygame.transform.scale(Box.image,(140,140))
         elif self.value == 1024:
-            Box.image =  pygame.image.load('data/SVCE.png')
+            Box.image =  pygame.image.load('data/ANNA.jpg')
             Box.image = pygame.transform.scale(Box.image,(140,140))
         elif self.value == 2048:
             Box.image =  pygame.image.load('data/VIT.png')
