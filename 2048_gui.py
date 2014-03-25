@@ -4,7 +4,6 @@ from pygame.locals import *
 from pygame.sprite import Sprite
 if not pygame.font: print 'Warning, fonts disabled'
 if not pygame.mixer: print 'Warning, sound disabled'
-from helpers import *
 import random
 class PyManMain:
     def __init__(self, width=610,height=610):
@@ -24,7 +23,11 @@ class PyManMain:
         row_column = free_list[random_location]
         random_row = row_column[0]
         random_column = row_column[1]
-        box_list[random_row][random_column].value = 2
+        value_random = random.randrange(100)
+        if value_random > 10:
+            box_list[random_row][random_column].value = 2
+        else:
+            box_list[random_row][random_column].value = 4
         return box_list
     def initialize_matrix(self,box_list):
         random_row_1 = random.randrange(4)
@@ -78,188 +81,68 @@ class PyManMain:
                 row[i+1].value = 0
                 row = self.push_left_row(row)
         return row
-    def push_left(self,row,index):
-        print 'In Push Function :'
-        print row,index
-        i = index
-        item = row[index]
-        if item == 0:
-            return row,9999
-        while i > 0:
-            if row[i-1] > 0:
-                return row,i
-            else:
-                row[i-1] = row[i]
-                row[i] = 0
-            i = i - 1
-            #print row
-            #print '-------'
-        return row,i
-    def check_merge_left(self,row,index):
-        if index == 0:
-            return row,False
-        else:
-            if row[index] == row[index-1]:
-                row[index-1] = row[index]*2
-                row[index] = 0
-                return row,True
-            else:
-                return row,False
-    def two_merge_check_left(self,row):
-        for i in range(len(row)-1,-1,-1):
-            if i == 0:
-                return row
-            if row[i] > 0 and row[i-1] == 0 and (i-1)!=0:
-                row[i-1] = row[i]
-                row[i] = 0
-        return row
-    def aftercheck(self,row):
-        for i in range(len(row)-1):
-            if row[i] == 0 and row[i+1] > 0:
-                row[i] = row[i+1]
-                row[i+1] = 0
-        return row
-    def move_left_row(self,row):
-        prev_merge = False
-        for i in range(len(row)-1,-1,-1):
-            row,index = push_left(row,i)
-            print 'Push : '
-            print row,index
-            if index == 9999:
-                continue
-            if prev_merge == False:
-                    row,check = check_merge_left(row,index)
-                    prev_merge = check
-                    print 'Merge :'
-                    print row,check
-            else:
-                prev_merge = False
-        row = two_merge_check_left(row)
-        row = aftercheck(row)
-        return row
-    #def move_left(matrix):
-        temp_matrix = []
-        for row in matrix:
-            prev_merge = False
-            for i in range(len(row)-1,-1,-1):
-                row,index = push_left(row,i)
-                if index == 9999:
-                    continue
-                if prev_merge == False:
-                    row,check = check_merge_left(row,index)
-                    prev_merge = check
-                else:
-                    prev_merge = False
-            row = two_merge_check_left(row)
-            row = aftercheck(row)
-            temp_matrix.append(row)
-        return temp_matrix
-    #def move_right(matrix):
-        temp_matrix = []
-        for row in matrix:
-            prev_merge = False
-            row.reverse()
-            for i in range(len(row)-1,-1,-1):
-                row,index = push_left(row,i)
-                if index == 9999:
-                    continue
-                if prev_merge == False:
-                    row,check = check_merge_left(row,index)
-                    prev_merge = check
-                else:
-                    prev_merge = False
-            row = two_merge_check_left(row)
-            row = aftercheck(row)
-            row.reverse()
-            temp_matrix.append(row)
-        return temp_matrix
-    #def move_up(matrix):
-        temp_matrix = []
-        for j in range(len(matrix)):
-            column = get_column(matrix,j)
-            prev_merge = False
-            for i in range(len(column)-1,-1,-1):
-                column,index = push_left(column,i)
-                if index == 9999:
-                    continue
-                if prev_merge == False:
-                    column,check = check_merge_left(column,index)
-                    prev_merge = check
-                else:
-                    prev_merge = False
-            column = two_merge_check_left(column)
-            column = aftercheck(column)
-            temp_matrix.append(column)
-        temp_matrix = transpose_matrix(temp_matrix)
-        return temp_matrix
-    #def move_down(matrix):
-        temp_matrix = []
-        for j in range(len(matrix)):
-            column = get_column(matrix,j)
-            prev_merge = False
-            column.reverse()
-            for i in range(len(column)-1,-1,-1):
-                column,index = push_left(column,i)
-                if index == 9999:
-                    continue
-                if prev_merge == False:
-                    column,check = check_merge_left(column,index)
-                    prev_merge = check
-                else:
-                    prev_merge = False
-            column = two_merge_check_left(column)
-            column = aftercheck(column)
-            column.reverse()
-            temp_matrix.append(column)
-        temp_matrix = transpose_matrix(temp_matrix)
-        return temp_matrix
+    def get_matrix_values(self,matrix):
+        matrix_values = []
+        for i in range(len(matrix)):
+            for j in range(len(matrix[0])):
+                matrix_values.append(matrix[i][j].value)
+        return matrix_values
     def move_left(self,box_list):
         temp_matrix = []
+        matrix_values = self.get_matrix_values(box_list)
         for row in box_list:
             row = self.push_left_row(row)
             row = self.check_merge(row)
             temp_matrix.append(row)
-        return temp_matrix
-    def move_right(self,matrix):
+        final_matrix_values = self.get_matrix_values(temp_matrix)
+        if final_matrix_values == matrix_values:
+            return temp_matrix,False
+        else:
+            return temp_matrix,True
+    def move_right(self,box_list):
         temp_matrix = []
-        for row in matrix:
+        matrix_values = self.get_matrix_values(box_list)
+        for row in box_list:
             row.reverse()
             row = self.push_left_row(row)
             row = self.check_merge(row)
             row.reverse()
             temp_matrix.append(row)
-        return temp_matrix
-    def move_up(self,matrix):
+        final_matrix_values = self.get_matrix_values(temp_matrix)
+        if final_matrix_values == matrix_values:
+            return temp_matrix,False
+        else:
+            return temp_matrix,True
+    def move_up(self,box_list):
         temp_matrix = []
-        for i in range(len(matrix)):
-            column = self.get_column(matrix,i)
-            column = self.push_left_row(column)
-            column = self.check_merge(column)
-            temp_matrix.append(column)
-        temp_matrix = self.transpose_matrix(temp_matrix)
-        return temp_matrix
-    def move_down(self,matrix):
-        temp_matrix = []
-        for i in range(len(matrix)):
-            column = self.get_column(matrix,i)
-            column.reverse()
-            column = self.push_left_row(column)
-            column = self.check_merge(column)
-            column.reverse()
-            temp_matrix.append(column)
-        temp_matrix = self.transpose_matrix(temp_matrix)
-        return temp_matrix
-    def animate(self,box_list,map_list):
+        matrix_values = self.get_matrix_values(box_list)
         for i in range(len(box_list)):
-            for j in range(len(box_list[0])):
-                mapping = map_list[i][j]
-                initial = mapping[0]
-                final = mapping[1]
-                grow = mapping[2]
-                if initial == final:
-                    continue
-                else:
-                    box_list[i][j].move((final-initial)*150,0)
+            column = self.get_column(box_list,i)
+            column = self.push_left_row(column)
+            column = self.check_merge(column)
+            temp_matrix.append(column)
+        temp_matrix = self.transpose_matrix(temp_matrix)
+        final_matrix_values = self.get_matrix_values(temp_matrix)
+        if final_matrix_values == matrix_values:
+            return temp_matrix,False
+        else:
+            return temp_matrix,True
+    def move_down(self,box_list):
+        temp_matrix = []
+        matrix_values = self.get_matrix_values(box_list)
+        for i in range(len(box_list)):
+            column = self.get_column(box_list,i)
+            column.reverse()
+            column = self.push_left_row(column)
+            column = self.check_merge(column)
+            column.reverse()
+            temp_matrix.append(column)
+        temp_matrix = self.transpose_matrix(temp_matrix)
+        final_matrix_values = self.get_matrix_values(temp_matrix)
+        if final_matrix_values == matrix_values:
+            return temp_matrix,False
+        else:
+            return temp_matrix,True
     def check_for_win_condition(self,box_list):
         checkflag = 0
         for i in range(len(box_list)):
@@ -270,6 +153,13 @@ class PyManMain:
             return True
         else:
             return False
+    def check_for_change(self,box_list_old,box_list_new):
+        box_list_old_array = get_matrix_values(box_list_old)
+        box_list_new_array = get_matrix_values(box_list_new)
+        if box_list_new_array == box_list_old_array:
+            return False
+        else:
+            return True
     def check_for_lose_condition(self,box_list):
         def get_matrix_values(matrix):
             matrix_values = []
@@ -309,6 +199,7 @@ class PyManMain:
     def MainLoop(self):
         BG_COLOUR = 0, 0, 0
         box_list = []
+        temp_box_list = []
         for i in range(4):
             temp_box_list = []
             for j in range(4):
@@ -322,23 +213,25 @@ class PyManMain:
         while 1:
             pygame.time.wait(20)
             modified_box_list = []
+            temp_box_list = box_list
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: 
                     sys.exit()
                 elif event.type == KEYDOWN:
                     if ((event.key == K_RIGHT) or (event.key == K_LEFT) or (event.key == K_UP) or (event.key == K_DOWN)):
                         if event.key == K_LEFT:
-                            modified_box_list = self.move_left(box_list)
+                            modified_box_list,result = self.move_left(box_list)
                         elif event.key == K_RIGHT:
-                            modified_box_list = self.move_right(box_list)
+                            modified_box_list,result = self.move_right(box_list)
                         elif event.key == K_DOWN:
-                            modified_box_list = self.move_down(box_list)
+                            modified_box_list,result = self.move_down(box_list)
                         elif event.key == K_UP:
-                            modified_box_list = self.move_up(box_list)
+                            modified_box_list,result = self.move_up(box_list)
                         for i in range(len(modified_box_list)):
                             for j  in range(len(modified_box_list[0])):
                                 modified_box_list[i][j].update(self.screen,(10+150*j,10+150*i),modified_box_list[i][j].value)
-                        modified_box_list = self.spawn_new_item(modified_box_list)
+                        if result == True:
+                            modified_box_list = self.spawn_new_item(modified_box_list)
                         for i in range(len(modified_box_list)):
                             for j  in range(len(modified_box_list[0])):
                                 modified_box_list[i][j].update(self.screen,(10+150*j,10+150*i),modified_box_list[i][j].value)

@@ -48,7 +48,29 @@ def display_matrix(matrix):
 			rowstring += '   |   '
 		print rowstring
 		print_line()
+def push_left_row(row):
+	for i in range(len(row)):
+		index = i - 1
+		if row[i] == 0:
+			continue
+		while index >= 0:
+			if row[index] == 0:
+				row[index] = row[index+1]
+				row[index+1] = 0
+			else:
+				break
+			index = index-1
+	return row
+def check_merge(row):
+	for i in range(len(row)-1):
+		if row[i] == row[i+1]:
+			row[i] = 2*row[i]
+			row[i+1] = 0
+			row = push_left_row(row)
+	return row
 def push_left(row,index):
+	print 'In Push Function :'
+	print row,index
 	i = index
 	item = row[index]
 	if item == 0:
@@ -93,8 +115,9 @@ def move_left_row(row):
 		row,index = push_left(row,i)
 		print 'Push : '
 		print row,index
+		if index == 9999:
+			continue
 		if prev_merge == False:
-			if index != 9999:
 				row,check = check_merge_left(row,index)
 				prev_merge = check
 				print 'Merge :'
@@ -104,12 +127,14 @@ def move_left_row(row):
 	row = two_merge_check_left(row)
 	row = aftercheck(row)
 	return row
-def move_left(matrix):
+#def move_left(matrix):
 	temp_matrix = []
 	for row in matrix:
 		prev_merge = False
 		for i in range(len(row)-1,-1,-1):
 			row,index = push_left(row,i)
+			if index == 9999:
+				continue
 			if prev_merge == False:
 				row,check = check_merge_left(row,index)
 				prev_merge = check
@@ -119,13 +144,15 @@ def move_left(matrix):
 		row = aftercheck(row)
 		temp_matrix.append(row)
 	return temp_matrix
-def move_right(matrix):
+#def move_right(matrix):
 	temp_matrix = []
 	for row in matrix:
 		prev_merge = False
 		row.reverse()
 		for i in range(len(row)-1,-1,-1):
 			row,index = push_left(row,i)
+			if index == 9999:
+				continue
 			if prev_merge == False:
 				row,check = check_merge_left(row,index)
 				prev_merge = check
@@ -136,13 +163,15 @@ def move_right(matrix):
 		row.reverse()
 		temp_matrix.append(row)
 	return temp_matrix
-def move_up(matrix):
+#def move_up(matrix):
 	temp_matrix = []
 	for j in range(len(matrix)):
 		column = get_column(matrix,j)
 		prev_merge = False
 		for i in range(len(column)-1,-1,-1):
 			column,index = push_left(column,i)
+			if index == 9999:
+				continue
 			if prev_merge == False:
 				column,check = check_merge_left(column,index)
 				prev_merge = check
@@ -153,7 +182,7 @@ def move_up(matrix):
 		temp_matrix.append(column)
 	temp_matrix = transpose_matrix(temp_matrix)
 	return temp_matrix
-def move_down(matrix):
+#def move_down(matrix):
 	temp_matrix = []
 	for j in range(len(matrix)):
 		column = get_column(matrix,j)
@@ -161,6 +190,8 @@ def move_down(matrix):
 		column.reverse()
 		for i in range(len(column)-1,-1,-1):
 			column,index = push_left(column,i)
+			if index == 9999:
+				continue
 			if prev_merge == False:
 				column,check = check_merge_left(column,index)
 				prev_merge = check
@@ -168,6 +199,42 @@ def move_down(matrix):
 				prev_merge = False
 		column = two_merge_check_left(column)
 		column = aftercheck(column)
+		column.reverse()
+		temp_matrix.append(column)
+	temp_matrix = transpose_matrix(temp_matrix)
+	return temp_matrix
+def move_left(matrix):
+	temp_matrix = []
+	for row in matrix:
+		row = push_left_row(row)
+		row = check_merge(row)
+		temp_matrix.append(row)
+	return temp_matrix
+def move_right(matrix):
+	temp_matrix = []
+	for row in matrix:
+		row.reverse()
+		row = push_left_row(row)
+		row = check_merge(row)
+		row.reverse()
+		temp_matrix.append(row)
+	return temp_matrix
+def move_up(matrix):
+	temp_matrix = []
+	for i in range(len(matrix)):
+		column = get_column(matrix,i)
+		column = push_left_row(column)
+		column = check_merge(column)
+		temp_matrix.append(column)
+	temp_matrix = transpose_matrix(temp_matrix)
+	return temp_matrix
+def move_down(matrix):
+	temp_matrix = []
+	for i in range(len(matrix)):
+		column = get_column(matrix,i)
+		column.reverse()
+		column = push_left_row(column)
+		column = check_merge(column)
 		column.reverse()
 		temp_matrix.append(column)
 	temp_matrix = transpose_matrix(temp_matrix)
@@ -230,11 +297,12 @@ def mainloop():
 	#	result = check_for_lose_condition(matrix)
 	#	if result == True:
 	#		print 'YOU LOSE! :('
-print move_left_row([4,2,0,2])
+#row = push_left_row([0,4,0,4])
+#print check_merge(row)
 #display_matrix(TEST_MATRIX)
 #matrix = move_down(TEST_MATRIX)
 #display_matrix(matrix)
-#mainloop()
+mainloop()
 #display_matrix(TEST_MATRIX)
 #matrix = move_left(TEST_MATRIX)
 #display_matrix(matrix)
